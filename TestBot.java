@@ -18,6 +18,7 @@ public class TestBot extends SmartAgentBase  {
 
     private static final int MINIMUM_ARMIES_TO_ATTACK = 2;
     private static final int SIDES_OF_DICE = 6;
+    private static final int MAX_NUMBER_OF_CARDS = 5;
 
     private void evenPlacement(int i) {
         while(i > 0) {
@@ -111,9 +112,16 @@ public class TestBot extends SmartAgentBase  {
         Quo quo = new Quo();
         SimulationBoard simBoard = new SimulationBoard(null);
         simBoard.init(board);
-        quo.setPrefs(ID, board);
+        quo.setPrefs(ID, simBoard);
         quo.attackPhase();
 
+    }
+
+    private SimulationBoard fullRoundSimulation(LuxAgent agent, SimulationBoard initialBoard) {
+        int currentID = ID;
+        int lastID = (ID + initialBoard.getNumberOfPlayers()) % initialBoard.getNumberOfPlayers();
+        int newArmies = (initialBoard.numberOfCountriesOwnedByPlayer(ID) / 3);
+        return null;
     }
 
     @Override
@@ -263,6 +271,78 @@ public class TestBot extends SmartAgentBase  {
                 continentBonuses[i] = board.getContinentBonus(i);
                 continentNames[i] = board.getContinentName(i);
             }
+        }
+
+        public double getRating(int id) {
+            double cardConst = 1.0;
+            double incomeConst = 1.0;
+            double countryConst = 1.0;
+            double maxIncome = 0.0;
+
+            for (int income : playersIncome) {
+                maxIncome = Math.max(maxIncome, income);
+            }
+
+            return playersCards[id] / (double)MAX_NUMBER_OF_CARDS * cardConst +
+                    playersIncome[id] / maxIncome * incomeConst +
+                    countriesOwnedByPlayer(id).length / (double)countries.length * countryConst;
+        }
+
+        public double[] getAllRatings() {
+            double[] result = new double[numberOfPlayers];
+            for (int i = 0; i < numberOfPlayers; i++) {
+                result[i] = getRating(i);
+            }
+            return result;
+        }
+
+        public Country[] countriesOwnedByPlayer(int id) {
+            Country[] result = new Country[numberOfCountriesOwnedByPlayer(id)];
+            int count = 0;
+            for (Country c : countries) {
+                if (c.getOwner() == id) {
+                    result[count] = c;
+                    count++;
+                }
+            }
+            return result;
+        }
+
+        public int numberOfCountriesOwnedByPlayer(int id) {
+            int result = 0;
+            for (Country c : countries) {
+                if (c.getOwner() == id) {
+                    result++;
+                }
+            }
+            return result;
+        }
+
+        public ArrayList<ArrayList<Integer>> continentsOwnedByPlayer(int id) {
+            Country[] playersCountries = countriesOwnedByPlayer(id);
+            ArrayList<ArrayList<Integer>> result = new ArrayList<>();
+
+            for (int i = 0; i < numberOfContinents; i++) {
+                result.add(new ArrayList<>());
+            }
+
+            int countryCount = 0;
+            int currentContinent = -1;
+            int currentOwner = -1;
+            boolean isSameOwner = false;
+            for (Country c : countries) {
+                if (currentContinent != c.getContinent()) {
+                    if(isSameOwner) {
+                        result.get(currentOwner).add(currentContinent);
+                    }
+                    currentContinent = c.getContinent();
+                    currentOwner = c.getOwner();
+                    isSameOwner = true;
+                } else if (currentOwner != c.getOwner()) {
+                    isSameOwner = false;
+                }
+            }
+            return result;
         }
 
         @Override
