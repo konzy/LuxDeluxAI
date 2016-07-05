@@ -1,16 +1,18 @@
-package com.sillysoft.lux.agent;//Created By: Brian Konzman on 6/14/2016 
+package com.sillysoft.lux.agent.LuxDeluxAI;//Created By: Brian Konzman on 6/14/2016
 
-import com.sillysoft.lux.B;
 import com.sillysoft.lux.Board;
 import com.sillysoft.lux.Card;
 import com.sillysoft.lux.Country;
+import com.sillysoft.lux.agent.LuxAgent;
+import com.sillysoft.lux.agent.Quo;
+import com.sillysoft.lux.agent.SmartAgentBase;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Random;
 
-public class TestBot extends SmartAgentBase  {
+public class TestBot extends SmartAgentBase {
 
     private int ID;
     private Board board;
@@ -110,8 +112,7 @@ public class TestBot extends SmartAgentBase  {
         ArrayList<Attack> allPossibleAttacks = determineAllPossibleAttacks();
 
         Quo quo = new Quo();
-        SimulationBoard simBoard = new SimulationBoard(null);
-        simBoard.init(board);
+        SimulationBoard simBoard = new SimulationBoard(board);
         quo.setPrefs(ID, simBoard);
         quo.attackPhase();
 
@@ -205,7 +206,6 @@ public class TestBot extends SmartAgentBase  {
     class SimulationBoard extends Board{
 
         private Country[] countries;
-        private int cardCashesPerformed;
         private String cardProgression;
         private int numberOfContinents;
         private int continentIncrease;
@@ -231,14 +231,8 @@ public class TestBot extends SmartAgentBase  {
         private HashMap<String, Float> floatStorage;
         private HashMap<String, Boolean> booleanStorage;
 
-        public SimulationBoard(B b) {
-            super(null);
-            init(board);
-        }
-
-        private void init(Board board) {
+        public SimulationBoard(Board board) {
             countries = getCountriesCopy(board.getCountries());
-            cardCashesPerformed = board.getCardCashesPerformed();
             cardProgression = board.getCardProgression();
             numberOfContinents = board.getNumberOfContinents();
             continentIncrease = board.getContinentIncrease();
@@ -427,16 +421,6 @@ public class TestBot extends SmartAgentBase  {
         }
 
         @Override
-        public void setContinentNames(String[] strings) {
-
-        }
-
-        @Override
-        public void finished() {
-
-        }
-
-        @Override
         public Country[] getCountries() {
             return countries;
         }
@@ -616,16 +600,6 @@ public class TestBot extends SmartAgentBase  {
         @Override
         public String getCardProgression() {
             return cardProgression;
-        }
-
-        @Override
-        public int getCardCashesPerformed() {
-            return cardCashesPerformed;
-        }
-
-        @Override
-        public int getNthCardCashValue(int i) {
-            return board.getNthCardCashValue(i);
         }
 
         @Override
